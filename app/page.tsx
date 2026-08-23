@@ -1,156 +1,65 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 
-function Shell({
-  title,
-  subtitle,
-  badge = "Portfolio demo · local-only",
-  children,
-}: {
-  title: string;
-  subtitle: string;
-  badge?: string;
-  children: ReactNode;
-}) {
-  return (
-    <div className="min-h-screen bg-zinc-50 text-zinc-900 dark:bg-black dark:text-zinc-100">
-      <div className="mx-auto max-w-6xl px-4 py-10">
-        <header className="mb-8">
-          <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">{badge}</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight">{title}</h1>
-          <p className="mt-2 max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">{subtitle}</p>
-        </header>
-        {children}
-        <footer className="mt-10 border-t border-zinc-200 pt-4 text-xs text-zinc-500 dark:border-zinc-800">
-          Honest demo: no multi-tenant backend. State (if any) stays in this browser.
-        </footer>
-      </div>
-    </div>
-  );
-}
+type Entry = { id: string; name: string; message: string; at: number };
 
-function Button({
-  children,
-  onClick,
-  variant = "primary",
-  disabled,
-  type = "button",
-  className = "",
-}: {
-  children: ReactNode;
-  onClick?: () => void;
-  variant?: "primary" | "secondary" | "ghost" | "danger";
-  disabled?: boolean;
-  type?: "button" | "submit";
-  className?: string;
-}) {
-  const base =
-    "inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium transition disabled:opacity-50 " +
-    className;
-  const styles =
-    variant === "primary"
-      ? "bg-zinc-900 text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900"
-      : variant === "secondary"
-        ? "bg-white text-zinc-900 ring-1 ring-zinc-200 hover:bg-zinc-100 dark:bg-zinc-900 dark:text-zinc-100 dark:ring-zinc-700"
-        : variant === "danger"
-          ? "bg-red-600 text-white hover:bg-red-500"
-          : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900";
-  return (
-    <button type={type} disabled={disabled} onClick={onClick} className={`${base} ${styles}`}>
-      {children}
-    </button>
-  );
-}
-
-const inputClass =
-  "w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none ring-zinc-400 focus:ring-2 dark:border-zinc-700 dark:bg-zinc-950";
-
-function useLocalStorage<T>(key: string, initial: T) {
-  const [value, setValue] = useState<T>(initial);
+function useEntries() {
+  const [entries, setEntries] = useState<Entry[]>([]);
   const [ready, setReady] = useState(false);
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(key);
-      if (raw != null) setValue(JSON.parse(raw) as T);
-    } catch {
-      /* ignore */
-    }
+      const saved = localStorage.getItem("guestbook-v2");
+      if (saved) setEntries(JSON.parse(saved) as Entry[]);
+    } catch { /* keep the empty register */ }
     setReady(true);
-  }, [key]);
-  useEffect(() => {
-    if (!ready) return;
-    localStorage.setItem(key, JSON.stringify(value));
-  }, [key, value, ready]);
-  return [value, setValue] as const;
+  }, []);
+  useEffect(() => { if (ready) localStorage.setItem("guestbook-v2", JSON.stringify(entries)); }, [entries, ready]);
+  return [entries, setEntries] as const;
 }
-
-function uid() {
-  return crypto.randomUUID();
-}
-
-async function copyText(text: string) {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-
-const FIELDS = ["Name", "Message"] as string[];
 
 export default function Home() {
-  const [values, setValues] = useState<Record<string, string>>(
-    Object.fromEntries(FIELDS.map((f) => [f, ""]))
-  );
-  const [sent, setSent] = useLocalStorage<{ at: number; payload: Record<string, string> }[]>("guestbook-v1", []);
-  const [ok, setOk] = useState(false);
+  const [entries, setEntries] = useEntries();
+  const [name, setName] = useState("");
+  const [message, setMessage] = useState("");
+  const [saved, setSaved] = useState(false);
 
-  const submit = (e: FormEvent) => {
+  function sign(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setSent((prev) => [{ at: Date.now(), payload: values }, ...prev].slice(0, 20));
-    setValues(Object.fromEntries(FIELDS.map((f) => [f, ""])));
-    setOk(true);
-    setTimeout(() => setOk(false), 2000);
-  };
+    if (!name.trim() || !message.trim()) return;
+    setEntries((current) => [{ id: crypto.randomUUID(), name: name.trim(), message: message.trim(), at: Date.now() }, ...current].slice(0, 40));
+    setName(""); setMessage(""); setSaved(true);
+    window.setTimeout(() => setSaved(false), 2200);
+  }
 
   return (
-    <Shell title="Guestbook" subtitle="Leave a note stored in localStorage.">
-      <form onSubmit={submit} className="max-w-lg space-y-3 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-        {FIELDS.map((f) => (
-          <label key={f} className="block space-y-1">
-            <span className="text-sm font-medium">{f}</span>
-            {f.toLowerCase().includes("message") || f.toLowerCase().includes("body") ? (
-              <textarea
-                className={`${inputClass} min-h-[100px]`}
-                required
-                value={values[f] || ""}
-                onChange={(e) => setValues((v) => ({ ...v, [f]: e.target.value }))}
-              />
-            ) : (
-              <input
-                className={inputClass}
-                required
-                value={values[f] || ""}
-                onChange={(e) => setValues((v) => ({ ...v, [f]: e.target.value }))}
-              />
-            )}
-          </label>
-        ))}
-        <Button type="submit">Submit</Button>
-        {ok ? <p className="text-sm text-emerald-600">"Thanks \u2014 saved on this browser."</p> : null}
-      </form>
-      <h2 className="mb-2 mt-8 text-lg font-medium">Local submissions ({sent.length})</h2>
-      <ul className="space-y-2 text-sm">
-        {sent.map((s, i) => (
-          <li key={i} className="rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-950">
-            <div className="text-xs text-zinc-500">{new Date(s.at).toLocaleString()}</div>
-            <pre className="mt-1 whitespace-pre-wrap font-mono text-xs">{JSON.stringify(s.payload, null, 2)}</pre>
-          </li>
-        ))}
-      </ul>
-    </Shell>
+    <main className="ledger-shell">
+      <header className="ledger-header">
+        <div className="seal" aria-hidden="true">B</div>
+        <div>
+          <p className="eyebrow">BOOKCHAOWALIT · VISITOR REGISTER</p>
+          <h1>Leave a trace.</h1>
+          <p className="lede">A small local guestbook for notes, hellos, and passing thoughts.</p>
+        </div>
+        <div className="header-note"><span>REGISTER 02</span><strong>{String(entries.length).padStart(2, "0")}</strong><span>entries on this device</span></div>
+      </header>
+      <div className="ledger-rule" />
+      <section className="ledger-grid" aria-label="Guestbook register">
+        <form className="signing-page" onSubmit={sign}>
+          <div className="page-heading"><span>Folio 01</span><span>Today&apos;s page</span></div>
+          <h2>Sign the book</h2>
+          <p className="muted">Your entry stays in this browser. No account, inbox, or shared wall.</p>
+          <label><span>Your name</span><input value={name} onChange={(e) => setName(e.target.value)} placeholder="How should we remember you?" required /></label>
+          <label><span>Your note</span><textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Leave a sentence worth finding later..." rows={5} required /></label>
+          <div className="form-footer"><button className="ink-button" type="submit">Press the seal <span aria-hidden="true">↗</span></button>{saved ? <span className="saved-note" role="status">Filed on this device.</span> : <span className="form-hint">Required fields · local only</span>}</div>
+        </form>
+        <section className="entries-page" aria-labelledby="entries-heading">
+          <div className="page-heading"><span>Folio 02—{String(Math.max(2, entries.length + 1)).padStart(2, "0")}</span><span>Most recent first</span></div>
+          <div className="entries-heading-row"><h2 id="entries-heading">The visitors</h2><span className="entry-count">{entries.length} / 40</span></div>
+          {entries.length === 0 ? <div className="empty-register"><span className="empty-mark" aria-hidden="true">—</span><p>The first line is still waiting.</p><span>Sign the left-hand page to open the register.</span></div> : <ol className="entry-list">{entries.map((entry, index) => <li key={entry.id}><span className="entry-index">{String(entries.length - index).padStart(2, "0")}</span><div><div className="entry-meta"><strong>{entry.name}</strong><time dateTime={new Date(entry.at).toISOString()}>{new Date(entry.at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</time></div><p>{entry.message}</p></div></li>)}</ol>}
+        </section>
+      </section>
+      <footer className="ledger-footer"><span>PRIVATE DEVICE REGISTER</span><span>Nothing leaves this tab.</span></footer>
+    </main>
   );
 }
