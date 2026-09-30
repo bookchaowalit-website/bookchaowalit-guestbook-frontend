@@ -32,3 +32,4 @@ Score: 7/10 (was 5/10) — honest local register with validated storage, tests a
   - Names/notes made only of zero-width characters were accepted; clipping
     could cut an emoji in half.
   - "01 entries on this device" -> "01 entry on this device".
+- Security deps: `next` 16.1.6 -> 16.3.8 (and `eslint-config-next`) clears critical GHSA-2xp9-vwfh-vxw4 (Image Optimization RCE) plus bundled postcss/sharp highs; lockfile regenerated with same-major `npm audit fix`. `npm audit --omit=dev`: C1/H3/M1/L0 [nanoid:h,next:c,postcss:h,sharp:h] -> C0/H0/M0/L0.
