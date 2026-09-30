@@ -9,7 +9,6 @@ Score: 7/10 (was 5/10) — honest local register with validated storage, tests a
 - P1: Let a visitor remove or edit their own entry on this device (currently append-only).
 - P1: Playwright smoke test for signing the book once a browser runner exists in CI.
 - P2: Export the register as JSON/print view.
-- P2: Correct `public/sitemap.xml` host to the real deployment URL.
 
 ## Done in this pass
 
@@ -18,3 +17,7 @@ Score: 7/10 (was 5/10) — honest local register with validated storage, tests a
 - `/more-projects` renders from `lib/related-projects.ts` (was ~980 lines of unrolled links plus an unused data copy) and no longer links to itself; removed the stale `app/page.tsx.backup`.
 - Entry logic moved to `lib/guestbook.ts` (trim, length limits, 40-entry cap, stored-data validation) with tests; hydration uses `lib/use-stored-state.ts`, fixing the `react-hooks/set-state-in-effect` lint error.
 - Validation errors are now announced via `role="status"`; inputs carry `maxLength`/`autocomplete`.
+
+## Done in this pass (pass 2)
+
+- Canonical host is config-driven: `lib/site.ts` resolves `NEXT_PUBLIC_SITE_URL` (validated, clear error on a non-http(s) value) and feeds `metadataBase`, generated `app/sitemap.ts` / `app/robots.ts` and the MCP `get_app_info` URL; removed the stale template `public/sitemap.xml` / `robots.txt` (they pointed at `bookchaowalit.com` and a `*.vercel.app` name that differs from the project URL). Tested in `lib/site.test.ts`.

@@ -1,11 +1,12 @@
 import { handleRpc } from "@/lib/mcp";
+import { SITE_URL } from "@/lib/site";
 
 export const runtime = "edge";
 
 const APP = {
   name: "Guestbook",
   description: "A local visitor register for notes, hellos, and passing thoughts.",
-  url: "https://bookchaowalit-guestbook-frontend.vercel.app",
+  url: SITE_URL,
 };
 
 export async function POST(request: Request) {
