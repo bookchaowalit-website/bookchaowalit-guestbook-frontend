@@ -22,3 +22,13 @@ Score: 7/10 (was 5/10) — honest local register with validated storage, tests a
 
 - Canonical host is config-driven: `lib/site.ts` resolves `NEXT_PUBLIC_SITE_URL` (validated, clear error on a non-http(s) value) and feeds `metadataBase`, generated `app/sitemap.ts` / `app/robots.ts` and the MCP `get_app_info` URL; removed the stale template `public/sitemap.xml` / `robots.txt` (they pointed at `bookchaowalit.com` and a `*.vercel.app` name that differs from the project URL). Tested in `lib/site.test.ts`.
 - Entries can be removed on this device (`removeEntry` in `lib/guestbook.ts`, tested); each Remove button names the entry it removes and has a visible focus ring.
+
+## Done in this pass (pass 3)
+- Edge-case pass on `lib/guestbook.ts` (regression tests in `lib/guestbook.test.ts`):
+  - Stored `at` only had to be finite; `1e20` passed and
+    `new Date(at).toISOString()` threw a RangeError, crashing the register.
+  - Repeated ids were kept (duplicate React keys; "remove" deleted both); a
+    leading BOM made the saved register unreadable.
+  - Names/notes made only of zero-width characters were accepted; clipping
+    could cut an emoji in half.
+  - "01 entries on this device" -> "01 entry on this device".

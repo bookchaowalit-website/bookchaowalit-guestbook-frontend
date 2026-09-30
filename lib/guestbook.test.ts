@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MAX_ENTRIES, MAX_NAME, parseEntries, signEntry, type Entry, removeEntry } from "./guestbook";
+import { MAX_ENTRIES, MAX_NAME, entriesNoun, parseEntries, signEntry, type Entry, removeEntry } from "./guestbook";
 
 describe("signEntry", () => {
   it("rejects blank names or notes", () => {
@@ -40,5 +40,34 @@ describe("removeEntry", () => {
     ];
     expect(removeEntry(entries, "b").map((entry) => entry.id)).toEqual(["a", "c"]);
     expect(removeEntry(entries, "missing")).toEqual(entries);
+  });
+});
+
+describe("edge cases", () => {
+  it("drops stored entries whose timestamp would make toISOString() throw", () => {
+    const raw = JSON.stringify([
+      { id: "a", name: "A", message: "hi", at: 1e20 },
+      { id: "b", name: "B", message: "hi", at: 1710000000000 },
+    ]);
+    const parsed = parseEntries(raw) ?? [];
+    expect(parsed.map((entry) => entry.id)).toEqual(["b"]);
+    expect(() => parsed.forEach((entry) => new Date(entry.at).toISOString())).not.toThrow();
+  });
+
+  it("drops repeated ids and accepts a leading BOM", () => {
+    const one = { id: "a", name: "A", message: "hi", at: 1 };
+    expect(parseEntries(`﻿${JSON.stringify([one, one])}`)).toEqual([one]);
+  });
+
+  it("rejects invisible-only names or notes and never clips an emoji in half", () => {
+    expect(signEntry([], "​", "hello", "x", 1)).toHaveProperty("error");
+    expect(signEntry([], "Ann", "﻿‍", "x", 1)).toHaveProperty("error");
+    const signed = signEntry([], `${"n".repeat(MAX_NAME - 1)}😀`, "hi", "x", 1) as Entry[];
+    expect(signed[0].name).toBe("n".repeat(MAX_NAME - 1));
+  });
+
+  it("pluralizes the device counter", () => {
+    expect(entriesNoun(1)).toBe("entry");
+    expect(entriesNoun(0)).toBe("entries");
   });
 });

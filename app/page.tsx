@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { MAX_ENTRIES, MAX_MESSAGE, MAX_NAME, parseEntries, removeEntry, signEntry, type Entry } from "@/lib/guestbook";
+import { MAX_ENTRIES, MAX_MESSAGE, MAX_NAME, entriesNoun, parseEntries, removeEntry, signEntry, type Entry } from "@/lib/guestbook";
 import { useStoredState } from "@/lib/use-stored-state";
 
 const EMPTY: Entry[] = [];
@@ -31,7 +31,7 @@ export default function Home() {
           <h1>Leave a trace.</h1>
           <p className="lede">A small local guestbook for notes, hellos, and passing thoughts.</p>
         </div>
-        <div className="header-note"><span>REGISTER 02</span><strong>{String(entries.length).padStart(2, "0")}</strong><span>entries on this device</span></div>
+        <div className="header-note"><span>REGISTER 02</span><strong>{String(entries.length).padStart(2, "0")}</strong><span>{entriesNoun(entries.length)} on this device</span></div>
       </header>
       <div className="ledger-rule" />
       <section className="ledger-grid" aria-label="Guestbook register">
