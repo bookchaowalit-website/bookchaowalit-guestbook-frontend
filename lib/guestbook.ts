@@ -25,3 +25,8 @@ export function parseEntries(raw: string | null): Entry[] | null {
     return null;
   }
 }
+
+/** Remove one entry by id (every entry lives on this device, so any may be removed). */
+export function removeEntry(entries: Entry[], id: string): Entry[] {
+  return entries.filter((entry) => entry.id !== id);
+}

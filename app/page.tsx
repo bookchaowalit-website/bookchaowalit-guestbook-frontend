@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { MAX_ENTRIES, MAX_MESSAGE, MAX_NAME, parseEntries, signEntry, type Entry } from "@/lib/guestbook";
+import { MAX_ENTRIES, MAX_MESSAGE, MAX_NAME, parseEntries, removeEntry, signEntry, type Entry } from "@/lib/guestbook";
 import { useStoredState } from "@/lib/use-stored-state";
 
 const EMPTY: Entry[] = [];
@@ -46,7 +46,7 @@ export default function Home() {
         <section className="entries-page" aria-labelledby="entries-heading">
           <div className="page-heading"><span>Folio 02—{String(Math.max(2, entries.length + 1)).padStart(2, "0")}</span><span>Most recent first</span></div>
           <div className="entries-heading-row"><h2 id="entries-heading">The visitors</h2><span className="entry-count">{entries.length} / {MAX_ENTRIES}</span></div>
-          {entries.length === 0 ? <div className="empty-register"><span className="empty-mark" aria-hidden="true">—</span><p>The first line is still waiting.</p><span>Sign the left-hand page to open the register.</span></div> : <ol className="entry-list">{entries.map((entry, index) => <li key={entry.id}><span className="entry-index">{String(entries.length - index).padStart(2, "0")}</span><div><div className="entry-meta"><strong>{entry.name}</strong><time dateTime={new Date(entry.at).toISOString()}>{new Date(entry.at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</time></div><p>{entry.message}</p></div></li>)}</ol>}
+          {entries.length === 0 ? <div className="empty-register"><span className="empty-mark" aria-hidden="true">—</span><p>The first line is still waiting.</p><span>Sign the left-hand page to open the register.</span></div> : <ol className="entry-list">{entries.map((entry, index) => <li key={entry.id}><span className="entry-index">{String(entries.length - index).padStart(2, "0")}</span><div><div className="entry-meta"><strong>{entry.name}</strong><time dateTime={new Date(entry.at).toISOString()}>{new Date(entry.at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</time></div><p>{entry.message}</p><button type="button" className="remove-entry" onClick={() => setEntries((current) => removeEntry(current, entry.id))} aria-label={`Remove the entry signed by ${entry.name}`}>Remove</button></div></li>)}</ol>}
         </section>
       </section>
       <footer className="ledger-footer"><span>PRIVATE DEVICE REGISTER</span><span>Nothing leaves this tab.</span></footer>

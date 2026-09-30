@@ -6,7 +6,7 @@ Score: 7/10 (was 5/10) — honest local register with validated storage, tests a
 
 ## Backlog
 
-- P1: Let a visitor remove or edit their own entry on this device (currently append-only).
+- P2: Edit an entry in place (removal exists since pass 2).
 - P1: Playwright smoke test for signing the book once a browser runner exists in CI.
 - P2: Export the register as JSON/print view.
 
@@ -21,3 +21,4 @@ Score: 7/10 (was 5/10) — honest local register with validated storage, tests a
 ## Done in this pass (pass 2)
 
 - Canonical host is config-driven: `lib/site.ts` resolves `NEXT_PUBLIC_SITE_URL` (validated, clear error on a non-http(s) value) and feeds `metadataBase`, generated `app/sitemap.ts` / `app/robots.ts` and the MCP `get_app_info` URL; removed the stale template `public/sitemap.xml` / `robots.txt` (they pointed at `bookchaowalit.com` and a `*.vercel.app` name that differs from the project URL). Tested in `lib/site.test.ts`.
+- Entries can be removed on this device (`removeEntry` in `lib/guestbook.ts`, tested); each Remove button names the entry it removes and has a visible focus ring.

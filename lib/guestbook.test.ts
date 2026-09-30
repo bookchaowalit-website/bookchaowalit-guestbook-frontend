@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MAX_ENTRIES, MAX_NAME, parseEntries, signEntry, type Entry } from "./guestbook";
+import { MAX_ENTRIES, MAX_NAME, parseEntries, signEntry, type Entry, removeEntry } from "./guestbook";
 
 describe("signEntry", () => {
   it("rejects blank names or notes", () => {
@@ -28,5 +28,17 @@ describe("parseEntries", () => {
     expect(parseEntries(null)).toBeNull();
     expect(parseEntries("nope")).toBeNull();
     expect(parseEntries(JSON.stringify([{ id: "1", name: "A", message: "B", at: 1 }, { id: 2 }]))).toEqual([{ id: "1", name: "A", message: "B", at: 1 }]);
+  });
+});
+
+describe("removeEntry", () => {
+  it("removes only the matching entry and keeps order", () => {
+    const entries = [
+      { id: "a", name: "A", message: "1", at: 1 },
+      { id: "b", name: "B", message: "2", at: 2 },
+      { id: "c", name: "C", message: "3", at: 3 },
+    ];
+    expect(removeEntry(entries, "b").map((entry) => entry.id)).toEqual(["a", "c"]);
+    expect(removeEntry(entries, "missing")).toEqual(entries);
   });
 });
