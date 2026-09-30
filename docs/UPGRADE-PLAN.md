@@ -1,0 +1,20 @@
+# Upgrade plan
+
+## Current state
+
+Score: 7/10 (was 5/10) — honest local register with validated storage, tests and CI; no shared wall by design.
+
+## Backlog
+
+- P1: Let a visitor remove or edit their own entry on this device (currently append-only).
+- P1: Playwright smoke test for signing the book once a browser runner exists in CI.
+- P2: Export the register as JSON/print view.
+- P2: Correct `public/sitemap.xml` host to the real deployment URL.
+
+## Done in this pass
+
+- CI (`.github/workflows/ci.yml`): `npm ci`, lint, typecheck, vitest, `next build` on every push and PR.
+- `/api/mcp` uses a typed JSON-RPC handler (`lib/mcp.ts`, tested) with proper error codes and an honest `get_app_info` tool; this fixed the template's lint errors.
+- `/more-projects` renders from `lib/related-projects.ts` (was ~980 lines of unrolled links plus an unused data copy) and no longer links to itself; removed the stale `app/page.tsx.backup`.
+- Entry logic moved to `lib/guestbook.ts` (trim, length limits, 40-entry cap, stored-data validation) with tests; hydration uses `lib/use-stored-state.ts`, fixing the `react-hooks/set-state-in-effect` lint error.
+- Validation errors are now announced via `role="status"`; inputs carry `maxLength`/`autocomplete`.
