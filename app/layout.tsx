@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
-export const metadata: Metadata = { title: "Guestbook | Bookchaowalit", description: "A local visitor register for notes, hellos, and passing thoughts.", metadataBase: new URL("https://bookchaowalit.com"), robots: { index: true, follow: true } };
+export const metadata: Metadata = { title: "Guestbook | Bookchaowalit", description: "A local visitor register for notes, hellos, and passing thoughts.", metadataBase: new URL(SITE_URL), robots: { index: true, follow: true } };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return <html lang="en"><body>
