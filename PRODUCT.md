@@ -1,46 +1,42 @@
-# bookchaowalit-guestbook-frontend — Product brief
+# Guestbook — Product truth
 
-**Slug:** `bookchaowalit-website/bookchaowalit-guestbook-frontend`  
-**Generated:** 2026-08-11 (bulk Book Dev closeout)  
-**Status:** starter / portfolio boundary
+> Inferred from the code and copy (no user interview). Checked against the portfolio card claims review
+> (`portfolio-site-web/docs/audits/CARD-CLAIMS-REVIEW-2026-10.md`, row `guestbook`, evidence Live→Prototype: the
+> moderated messages, public count and social-proof claims were removed) on 2026-10-23.
 
-## Purpose
+## What it is
 
-Portfolio repository under Book Dev. This brief records ownership and the
-current honest status so the nested tree is not an empty shell in the task
-system.
+A client-only guestbook demo: a visitor register kept in this browser's `localStorage`.
 
-## Runnable path
+## Who it is for
 
-See `README.md` for install and run instructions when present.
+A portfolio visitor who wants to see a small, careful form-and-list UI.
 
-## Limits
+## What works today
 
-- Not claimed as production-ready unless README and tests prove it.
-- Mobile smoke / emulator acceptance is separate and toolchain-dependent.
+1. Sign with a name (up to 60 characters) and a note (up to 500); blank or invisible-only input shows an error, and
+   clipping never splits an emoji.
+2. Entries show newest first with a date; the newest 40 are kept. Any entry can be removed.
+3. Stored entries are validated on load: bad JSON, repeated ids and out-of-range timestamps are dropped.
+4. `/api/mcp` answers JSON-RPC (`initialize`, `ping`, `tools/list`, `tools/call`) with one honest `get_app_info` tool;
+   unknown tools and methods return JSON-RPC errors.
+5. Front-end and server errors go to Sentry (errors only, personal data stripped) when `NEXT_PUBLIC_SENTRY_DSN` is set.
 
-## Source README excerpt
+## What does not work (and must not be claimed)
 
-```
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+- No shared or public wall: other visitors never see an entry. No moderation, message count or social proof.
+- No account, sync, export or e-mail. Clearing site data deletes the register.
 
-## Getting Started
+## Live URL and deploy state
 
-First, run the development server:
+- Live: https://guestbook.bookchaowalit.com (HTTP 200 on 2026-10-23).
+- The Vercel project `bookchaowalit-guestbook-frontend` is deployed by CLI only. Its Git link names the old repository
+  (`bookchaowalit/bookchaowalit-guestbook-frontend`), so a push to `main` does not deploy. The last production deploy
+  is the CVE patch (2026-10-23 12:06, CLI, commit 9bbdc17); later commits (tests, Sentry, canonical URL fix) stay
+  undeployed until the owner reconnects Vercel Git to this repository (owner action D9).
+- `NEXT_PUBLIC_SENTRY_DSN` is set on the Vercel project (Sentry project `community-guestbook-web`, org
+  `personal-yu0`); it takes effect on the next deploy.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Boundaries
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize an
-```
+- Browser-only apart from the stateless `/api/mcp` route. No server storage, no personal data collected.
