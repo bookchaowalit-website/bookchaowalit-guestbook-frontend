@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MAX_ENTRIES, MAX_NAME, entriesNoun, parseEntries, signEntry, type Entry, removeEntry } from "./guestbook";
+import { MAX_ENTRIES, MAX_NAME, entriesNoun, parseEntries, signEntry, type Entry, removeEntry } from "@/lib/guestbook";
 
 describe("signEntry", () => {
   it("rejects blank names or notes", () => {
